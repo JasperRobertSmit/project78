@@ -6,10 +6,10 @@
 # Write a line equal to 'keep-all' (without quotes) to keep files regardless their modification (preserved accross builds)
 # Default behavior is to never overwrite files
 hololens_project.sln: D6AF0B8CDF9A6FA9D69E4CEF2B5C852F
-hololens_project\App.cs: BF0F6250C9FA23FE5D7350B674D26A38
-hololens_project\hololens_project.csproj: 2E0B6E93F6B9B34F4423F1AC39D49A7B
+hololens_project\App.cs: modified
+hololens_project\hololens_project.csproj: 134B08ED59D6FFC3A481CDAF0027ECEB
 hololens_project\hololens_project.csproj.user: BEFB8AC4886C4CFDD3C68445D6F19B04
-hololens_project\Package.appxmanifest: 5C714429C89BCE8A7F88433BB4C034EF
+hololens_project\Package.appxmanifest: B8502D642BE7C84A0AAF982BA79340A5
 hololens_project\project.json: 1D02BC64BAC0D041019673A1C4C51737
 hololens_project\Assets\SplashScreen.scale-200.png: 60618416282ED104FD1473935716045D
 hololens_project\Assets\Square150x150Logo.scale-200.png: E02834B4A5DFB97FF8E212C1CACBB084
@@ -17,5 +17,5 @@ hololens_project\Assets\Square44x44Logo.scale-200.png: 6C6EF27184ABE9D870A9D5649
 hololens_project\Assets\Square44x44Logo.targetsize-24_altform-unplated.png: 156637F7B5363E983E7A46D8E533A23D
 hololens_project\Assets\StoreLogo.png: 90BD194CA4A7CFFF3E8B8222229857FB
 hololens_project\Assets\Wide310x150Logo.scale-200.png: C96846A80DF667F87355569CD816192D
-hololens_project\Properties\AssemblyInfo.cs: 525263EB93134351BDF1AEDB7AA06F21
+hololens_project\Properties\AssemblyInfo.cs: modified
 hololens_project\Properties\Default.rd.xml: 72EB282657164E79A1C42F6240984826
