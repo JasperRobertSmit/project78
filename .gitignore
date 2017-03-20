@@ -1,0 +1,4 @@
+build/hololens_project/bin/x64/Debug/*
+build/hololens_project/bin/x86/Debug/*
+build/hololens_project/bin/ARM/Debug/*
+Temp/
