@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hololens_project", "Assembly-CSharp-firstpass.csproj", "{10C56E26-B96D-ED7C-CC46-B42DC9F01338}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hololens_project", "Assembly-CSharp.csproj", "{9971D234-E700-0D5D-0B92-D24CB556CEBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hololens_project", "Assembly-CSharp-Editor-firstpass.csproj", "{F98B7FAF-871E-9203-88EC-5B963FA1A8BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{10C56E26-B96D-ED7C-CC46-B42DC9F01338}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10C56E26-B96D-ED7C-CC46-B42DC9F01338}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10C56E26-B96D-ED7C-CC46-B42DC9F01338}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10C56E26-B96D-ED7C-CC46-B42DC9F01338}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9971D234-E700-0D5D-0B92-D24CB556CEBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9971D234-E700-0D5D-0B92-D24CB556CEBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9971D234-E700-0D5D-0B92-D24CB556CEBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9971D234-E700-0D5D-0B92-D24CB556CEBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F98B7FAF-871E-9203-88EC-5B963FA1A8BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F98B7FAF-871E-9203-88EC-5B963FA1A8BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F98B7FAF-871E-9203-88EC-5B963FA1A8BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F98B7FAF-871E-9203-88EC-5B963FA1A8BC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
