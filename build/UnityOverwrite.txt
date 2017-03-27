@@ -7,8 +7,8 @@
 # Default behavior is to never overwrite files
 hololens_project.sln: D6AF0B8CDF9A6FA9D69E4CEF2B5C852F
 hololens_project\App.cs: modified
-hololens_project\hololens_project.csproj: 134B08ED59D6FFC3A481CDAF0027ECEB
-hololens_project\hololens_project.csproj.user: BEFB8AC4886C4CFDD3C68445D6F19B04
+hololens_project\hololens_project.csproj: 9C428CECF69037EDC8433A44C53B9582
+hololens_project\hololens_project.csproj.user: modified
 hololens_project\Package.appxmanifest: B8502D642BE7C84A0AAF982BA79340A5
 hololens_project\project.json: 1D02BC64BAC0D041019673A1C4C51737
 hololens_project\Assets\SplashScreen.scale-200.png: 60618416282ED104FD1473935716045D
