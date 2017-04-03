@@ -1,1 +1,0 @@
-M:\Github\project78\build\hololens_project\hololens_project.csproj;x86

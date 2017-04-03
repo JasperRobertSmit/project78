@@ -24,7 +24,7 @@ public class GestureManager : MonoBehaviour
 
     public void Add()
     {
-        Object itemPrefab = Resources.Load("Assets/Resources/Cube.prefab");
+        Object itemPrefab = Resources.Load("Assets/Resources/Cube");
 
         GameObject itemObject = (GameObject)Instantiate(itemPrefab);
         itemObject.transform.parent = Camera.allCameras[0].gameObject.transform;
