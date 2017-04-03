@@ -7,7 +7,7 @@
 # Default behavior is to never overwrite files
 hololens_project.sln: D6AF0B8CDF9A6FA9D69E4CEF2B5C852F
 hololens_project\App.cs: modified
-hololens_project\hololens_project.csproj: 9C428CECF69037EDC8433A44C53B9582
+hololens_project\hololens_project.csproj: modified
 hololens_project\hololens_project.csproj.user: modified
 hololens_project\Package.appxmanifest: B8502D642BE7C84A0AAF982BA79340A5
 hololens_project\project.json: 1D02BC64BAC0D041019673A1C4C51737
