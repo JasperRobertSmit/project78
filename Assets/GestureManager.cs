@@ -5,7 +5,8 @@ using UnityEngine.VR.WSA.Input;
 
 public class GestureManager : MonoBehaviour
 {
-    public static GameObject gameObject;
+    public static GameObject gameObjectChessboard;
+    public static bool gameObjectChessboardPlaced = false;
 
     // Use this for initialization
     void Start()
@@ -24,35 +25,87 @@ public class GestureManager : MonoBehaviour
 
     public void Add()
     {
-        Debug.Log("add");
+        Debug.Log("addnew");
 
-        if (gameObject == null)
+        if (gameObjectChessboardPlaced)
+            return;
+
+        if (gameObjectChessboard == null)
         {
             Debug.Log("add1");
-            Object itemPrefab = Resources.Load("Cube");
-            gameObject = (GameObject)Instantiate(itemPrefab, transform.position + (transform.forward * 5), transform.rotation);
+            Object itemPrefab = Resources.Load("Board");
+            gameObjectChessboard = (GameObject)Instantiate(itemPrefab, transform.position + (transform.forward * 5), new Quaternion(0, 0, 0, 0));
         }
         else
         {
-            Debug.Log("add2");
-            gameObject = null;
-        }
-        
-        //GameObject itemObject = (GameObject)Instantiate(itemPrefab);
-        //itemObject.transform.parent = Camera.allCameras[0].gameObject.transform;
-        //itemObject.transform.position = Camera.allCameras[0].gameObject.transform.position;
+            // black
+            Object itemPrefabBlackBishop = Resources.Load("Black Bishop");
+            Object itemPrefabBlackKing = Resources.Load("Black King");
+            Object itemPrefabBlackKnight = Resources.Load("Black Knight");
+            Object itemPrefabBlackPawn = Resources.Load("Black Pawn");
+            Object itemPrefabBlackQueen = Resources.Load("Black Queen");
+            Object itemPrefabBlackRook = Resources.Load("Black Rook");
 
-        //Debug.Log(itemObject.transform.position.x + " " + itemObject.transform.position.y + " " + itemObject.transform.position.z);
+            List<Object> chessItems = new List<Object>()
+            {
+                itemPrefabBlackRook,
+                itemPrefabBlackKnight,
+                itemPrefabBlackBishop,
+                itemPrefabBlackKing,
+                itemPrefabBlackQueen,
+                itemPrefabBlackBishop,
+                itemPrefabBlackKnight,
+                itemPrefabBlackRook
+            };
+
+            Vector3 bounds = gameObjectChessboard.GetComponent<Renderer>().bounds.size;
+            float squareSize = bounds.x / 10;
+
+            float itemPrefabBlackX = 0;
+            float itemPrefabBlackZ = 0;
+
+            Vector3 start = gameObjectChessboard.transform.position;
+            float x = (bounds.x / 2) + squareSize;
+            float z = (bounds.z / 2) + squareSize;
+            start = start + new Vector3(x, 0, z);
+
+            foreach (Object itemPrefabBlack in chessItems)
+            {
+                Instantiate(itemPrefabBlack, start + new Vector3(itemPrefabBlackX, 0, itemPrefabBlackZ), new Quaternion(0, 0, 0, 0));
+                itemPrefabBlackX += squareSize;
+            }
+
+            itemPrefabBlackX = 0;
+            itemPrefabBlackZ += squareSize;
+            for (int i = 0; i < 8; i++)
+            {
+                Instantiate(itemPrefabBlackPawn, start + new Vector3(itemPrefabBlackX, 0, itemPrefabBlackZ), new Quaternion(0, 0, 0, 0));
+                itemPrefabBlackX += squareSize;
+            }
+
+            //Instantiate(itemPrefabBlackBishop, gameObjectChessboard.transform.position + (transform.forward * 5), new Quaternion(0, 0, 0, 0));
+
+            // White
+            Object itemPrefabWhiteBishop = Resources.Load("White Bishop");
+            Object itemPrefabWhiteKing = Resources.Load("White King");
+            Object itemPrefabWhiteKnight = Resources.Load("White Knight");
+            Object itemPrefabWhitePawn = Resources.Load("White Pawn");
+            Object itemPrefabWhiteQueen = Resources.Load("White Queen");
+            Object itemPrefabWhiteRook = Resources.Load("White Rook");
+
+            Debug.Log("add2");
+            gameObjectChessboard = null;
+            gameObjectChessboardPlaced = true;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("update1");
-        if (gameObject != null)
+        if (gameObjectChessboard != null)
         {
             Debug.Log("update2");
-            gameObject.transform.position = transform.position + (transform.forward * 5);
+            gameObjectChessboard.transform.position = transform.position + (transform.forward * 30);
         }
     }
 }
