@@ -33,7 +33,7 @@ public class GestureManager : MonoBehaviour
         if (gameObjectChessboard == null)
         {
             Debug.Log("add1");
-            Object itemPrefab = Resources.Load("Board");
+            Object itemPrefab = Resources.Load("Cube");
             gameObjectChessboard = (GameObject)Instantiate(itemPrefab, transform.position + (transform.forward * 5), new Quaternion(0, 0, 0, 0));
         }
         else
@@ -46,7 +46,7 @@ public class GestureManager : MonoBehaviour
             Object itemPrefabBlackQueen = Resources.Load("Black Queen");
             Object itemPrefabBlackRook = Resources.Load("Black Rook");
 
-            List<Object> chessItems = new List<Object>()
+            List<Object> chessItemsBlack = new List<Object>()
             {
                 itemPrefabBlackRook,
                 itemPrefabBlackKnight,
@@ -57,21 +57,20 @@ public class GestureManager : MonoBehaviour
                 itemPrefabBlackKnight,
                 itemPrefabBlackRook
             };
-
+            
             Vector3 bounds = gameObjectChessboard.GetComponent<Renderer>().bounds.size;
-            float squareSize = bounds.x / 10;
-
+            float squareSize = bounds.x / 8;
             float itemPrefabBlackX = 0;
             float itemPrefabBlackZ = 0;
 
             Vector3 start = gameObjectChessboard.transform.position;
-            float x = (bounds.x / 2) + squareSize;
-            float z = (bounds.z / 2) + squareSize;
-            start = start + new Vector3(x, 0, z);
+            float x = (bounds.x / 2) - (float)(0.5 * squareSize);
+            float z = (bounds.z / 2) - (float)(0.5 * squareSize);
+            start = start - new Vector3(x, 0, z);
 
-            foreach (Object itemPrefabBlack in chessItems)
+            foreach (Object itemPrefabBlack in chessItemsBlack)
             {
-                Instantiate(itemPrefabBlack, start + new Vector3(itemPrefabBlackX, 0, itemPrefabBlackZ), new Quaternion(0, 0, 0, 0));
+                GameObject instantiatedObject = (GameObject)Instantiate(itemPrefabBlack, start + new Vector3(itemPrefabBlackX, 0, itemPrefabBlackZ), new Quaternion(0, 90, 0, 0));
                 itemPrefabBlackX += squareSize;
             }
 
@@ -79,12 +78,10 @@ public class GestureManager : MonoBehaviour
             itemPrefabBlackZ += squareSize;
             for (int i = 0; i < 8; i++)
             {
-                Instantiate(itemPrefabBlackPawn, start + new Vector3(itemPrefabBlackX, 0, itemPrefabBlackZ), new Quaternion(0, 0, 0, 0));
+                Instantiate(itemPrefabBlackPawn, start + new Vector3(itemPrefabBlackX, 0, itemPrefabBlackZ), new Quaternion(0, 90, 0, 0));
                 itemPrefabBlackX += squareSize;
             }
-
-            //Instantiate(itemPrefabBlackBishop, gameObjectChessboard.transform.position + (transform.forward * 5), new Quaternion(0, 0, 0, 0));
-
+            
             // White
             Object itemPrefabWhiteBishop = Resources.Load("White Bishop");
             Object itemPrefabWhiteKing = Resources.Load("White King");
@@ -92,6 +89,44 @@ public class GestureManager : MonoBehaviour
             Object itemPrefabWhitePawn = Resources.Load("White Pawn");
             Object itemPrefabWhiteQueen = Resources.Load("White Queen");
             Object itemPrefabWhiteRook = Resources.Load("White Rook");
+
+            List<Object> chessItemsWhite = new List<Object>()
+            {
+                itemPrefabWhiteRook,
+                itemPrefabWhiteKnight,
+                itemPrefabWhiteBishop,
+                itemPrefabWhiteKing,
+                itemPrefabWhiteQueen,
+                itemPrefabWhiteBishop,
+                itemPrefabWhiteKnight,
+                itemPrefabWhiteRook
+            };
+
+            Vector3 boundsWhite = gameObjectChessboard.GetComponent<Renderer>().bounds.size;
+            float squareSizeWhite = boundsWhite.x / 8;
+            float itemPrefabWhiteX = 0;
+            float itemPrefabWhiteZ = 0;
+
+            Vector3 whiteStart = gameObjectChessboard.transform.position;
+            float whiteX = (boundsWhite.x / 2) - (float)(0.5 * squareSizeWhite);
+            float whiteZ = (boundsWhite.z / 2) + (float)(5.5 * squareSizeWhite);
+            whiteStart = whiteStart + new Vector3(whiteX, 0, whiteZ);
+            
+            for (int i = 0; i < 8; i++)
+            {
+                Instantiate(itemPrefabWhitePawn, whiteStart + new Vector3(itemPrefabWhiteX, 0, itemPrefabWhiteZ), new Quaternion(0, 180, 0, 0));
+                itemPrefabWhiteX -= squareSizeWhite;
+            }
+
+            itemPrefabWhiteX = 0;
+            itemPrefabWhiteZ += squareSizeWhite;
+            foreach (Object itemPrefabBlack in chessItemsWhite)
+            {
+                Instantiate(itemPrefabBlack, whiteStart + new Vector3(itemPrefabWhiteX, 0, itemPrefabWhiteZ), new Quaternion(0, 180, 0, 0));
+                itemPrefabWhiteX -= squareSizeWhite;
+            }
+
+
 
             Debug.Log("add2");
             gameObjectChessboard = null;
