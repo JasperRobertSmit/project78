@@ -11,6 +11,7 @@ public class GestureManager : MonoBehaviour
     public static bool gameObjectChessboardPlaced = false;
 
     public static GameObject gameObjectChessPiece;
+    public static GameObject gameObjectVoiceChessPiece;
     public static bool gameObjectChessPieceSelected = false;
 
     private object[][] gameObjects = new object[8][];
@@ -67,7 +68,7 @@ public class GestureManager : MonoBehaviour
         if (textPrefab != null)
         {
             // move the textprefab
-            textPrefab.transform.position = headPosition + (gazeDirection * 180) - new Vector3(0,2,0);
+            textPrefab.transform.position = headPosition + (gazeDirection * 180) + new Vector3(0,5,0);
             textPrefab.transform.LookAt(Camera.main.transform);
             textPrefab.transform.Rotate(0, 180, 0);
         }
@@ -97,7 +98,7 @@ public class GestureManager : MonoBehaviour
     {
         // set the text object
         UnityEngine.Object textResource = Resources.Load("Text");
-        textPrefab = (GameObject)Instantiate(textResource, transform.position + (transform.forward * 2), new Quaternion(0, 0, 0, 0));
+        textPrefab = (GameObject)Instantiate(textResource, transform.position + (transform.forward * 2) + new Vector3(0, 5, 0), new Quaternion(0, 0, 0, 0));
         textMesh = textPrefab.GetComponent<TextMesh>();
         textMesh.text = "Say \"load\" load the chessboard.";
     }
@@ -206,9 +207,13 @@ public class GestureManager : MonoBehaviour
         RaycastHit hitInfo;
         if (Physics.Raycast(headPosition, gazeDirection, out hitInfo) && (hitInfo.collider.gameObject.name.ToLower().Contains("white") || hitInfo.collider.gameObject.name.ToLower().Contains("black")))
         {
-            UnityEngine.Debug.Log("Chesspiece selected!");
-            gameObjectChessPiece = hitInfo.collider.gameObject;
-            gameObjectChessPieceSelected = true;
+            // temp
+            if (hitInfo.collider.gameObject.name.ToLower().Contains("pawn"))
+            {
+                UnityEngine.Debug.Log("Chesspiece selected!");
+                gameObjectChessPiece = hitInfo.collider.gameObject;
+                gameObjectChessPieceSelected = true;
+            }
         }
     }
 
@@ -245,6 +250,7 @@ public class GestureManager : MonoBehaviour
         gameObjectChessboard = null;
         gameObjectChessboardPlaced = true;
         UnityEngine.Debug.Log("Chessboard deselected!");
+        textMesh.text = "";
 
         // black
         List<UnityEngine.Object> chessItemsBlack = new List<UnityEngine.Object>() { itemPrefabBlackRook, itemPrefabBlackKnight, itemPrefabBlackBishop, itemPrefabBlackKing, itemPrefabBlackQueen, itemPrefabBlackBishop, itemPrefabBlackKnight, itemPrefabBlackRook };
@@ -356,7 +362,7 @@ public class GestureManager : MonoBehaviour
             int[][] chessMoveOptions = new int[2][]
             {
                 new int[2] {currentX, currentZ },
-                new int[2] {currentX, currentZ+1 }
+                new int[2] {currentX, Math.Min(currentZ+1, 7) }
             };
 
             // calculate the distance closest to a move
@@ -394,16 +400,16 @@ public class GestureManager : MonoBehaviour
     {
         // get the from and to coordinates
         string[] coordinates = voiceCommand.Split(new string[] { " to " }, StringSplitOptions.RemoveEmptyEntries);
-        int horizontalFrom = letters.IndexOf(coordinates[0][0].ToString());
-        int verticalFrom = int.Parse(coordinates[0][1].ToString()) - 1;
-        int horizontalTo = letters.IndexOf(coordinates[1][0].ToString());
-        int verticalTo = int.Parse(coordinates[1][1].ToString()) - 1;
+        int verticalFrom = letters.IndexOf(coordinates[0][0].ToString());
+        int horizontalFrom = int.Parse(coordinates[0][1].ToString()) - 1;
+        int verticalTo = letters.IndexOf(coordinates[1][0].ToString());
+        int horizontalTo = int.Parse(coordinates[1][1].ToString()) - 1;
 
         // check if an object exists at the requested location
-        GameObject gameObject = (GameObject)gameObjects[verticalFrom][horizontalFrom];
+        GameObject gameObject = (GameObject)gameObjects[horizontalFrom][verticalFrom];
         if (gameObject != null)
         {
-            gameObjectChessPiece = gameObject;
+            gameObjectVoiceChessPiece = gameObject;
             UnityEngine.Debug.Log(gameObject.name + " " + voiceCommand);
 
             // use the closestmove method to check if the move is valid
@@ -419,15 +425,17 @@ public class GestureManager : MonoBehaviour
 
     private void ExecuteManualMove(bool temporary)
     {
+        GameObject gameObjectCurrent = gameObjectVoiceChessPiece != null ? gameObjectVoiceChessPiece : gameObjectChessPiece;
+
         // get the current position of the chesspiece
-        Vector3 chessPieceCurrentVector = new Vector3(gameObjectChessPiece.transform.position.x, gameObjectChessPiece.transform.position.y, gameObjectChessPiece.transform.position.z);
-        int horizontalFrom = (int)Math.Round((chessPieceCurrentVector.x - startBlack.x) / squareSize, 0);
-        int verticalFrom = (int)Math.Round((chessPieceCurrentVector.z - startBlack.z) / squareSize, 0);
+        Vector3 chessPieceCurrentVector = new Vector3(gameObjectCurrent.transform.position.x, gameObjectCurrent.transform.position.y, gameObjectCurrent.transform.position.z);
+        int verticalFrom = (int)Math.Round((chessPieceCurrentVector.x - startBlack.x) / squareSize, 0);
+        int horizontalFrom = (int)Math.Round((chessPieceCurrentVector.z - startBlack.z) / squareSize, 0);
 
         // get the new position of the chesspiece
-        Vector3 chessPieceNewVector = new Vector3(transform.position.x + (transform.forward * 6).x, gameObjectChessPiece.transform.position.y, transform.position.z + (transform.forward * 6).z);
-        int horizontalTo = (int)Math.Round((chessPieceNewVector.x - startBlack.x) / squareSize, 0);
-        int verticalTo = (int)Math.Round((chessPieceNewVector.z - startBlack.z) / squareSize, 0);
+        Vector3 chessPieceNewVector = new Vector3(gameObjectCurrent.transform.position.x + (transform.forward * 2).x, gameObjectCurrent.transform.position.y + (transform.forward * 2).y, gameObjectCurrent.transform.position.z + (transform.forward * 2).z);
+        int verticalTo = (int)Math.Round((chessPieceNewVector.x - startBlack.x) / squareSize, 0);
+        int horizontalTo = (int)Math.Round((chessPieceNewVector.z - startBlack.z) / squareSize, 0);
 
         // check limits of chesspiece
         horizontalTo = Math.Max(horizontalTo, 0);
@@ -440,8 +448,8 @@ public class GestureManager : MonoBehaviour
         verticalFrom = Math.Min(verticalFrom, 7);
 
         // get the closest available option
-        ChessPiece chessPiece = MapChessPiece(gameObjectChessPiece.name);
-        ChessPieceColor chessPieceColor = MapChessPieceColor(gameObjectChessPiece.name);
+        ChessPiece chessPiece = MapChessPiece(gameObjectCurrent.name);
+        ChessPieceColor chessPieceColor = MapChessPieceColor(gameObjectCurrent.name);
         int[] closestMove = GetClosestMove(chessPiece, chessPieceColor, horizontalFrom, verticalFrom, horizontalTo, verticalTo);
         if (closestMove != null)
         {
@@ -488,6 +496,7 @@ public class GestureManager : MonoBehaviour
         gameObjects[horizontalTo][verticalTo] = gameObjectChessPiece;
         gameObjectChessPiece.transform.position = startBlack + new Vector3(horizontalCoordinates, 0, verticalCoordinates);
         gameObjectChessPiece = null;
+        gameObjectVoiceChessPiece = null;
         gameObjectChessPieceSelected = false;
     }
     #endregion
