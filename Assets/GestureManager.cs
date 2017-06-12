@@ -5,7 +5,7 @@ using UnityEngine.VR.WSA.Input;
 
 public class GestureManager : MonoBehaviour
 {
-    public static GameObject gameObjectChessboard;
+    private Game game;
     public static bool gamePlaced = false;
 
     // Use this for initialization
@@ -30,9 +30,9 @@ public class GestureManager : MonoBehaviour
         if (gamePlaced)
             return;
 
-        if (gameObjectChessboard == null)
+        if (game == null)
         {
-            Game game = new Game(transform.position, transform.forward);
+            game = new Game(transform.position, transform.forward);
             gamePlaced = true;
         }
     }
@@ -40,10 +40,10 @@ public class GestureManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (gameObjectChessboard != null)
+        if (game != null)
         {
             Debug.Log("update2");
-            gameObjectChessboard.transform.position = transform.position + (transform.forward * 30);
+            game.Chessboard.GameObjectChessboard.transform.position = game.Chessboard.GameObjectChessboard.transform.position + (game.Chessboard.GameObjectChessboard.transform.forward * 30);
         }
     }
 }

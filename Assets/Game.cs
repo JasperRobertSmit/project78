@@ -11,7 +11,8 @@ class Game
     public const String color_black = "Black";
     public const String color_white = "White";
 
-    private Chessboard chessboard { get; set; }
+    private Chessboard chessboard;
+    public Chessboard Chessboard { get; set; }
     private PieceSet blackPieces;
     private PieceSet whitePieces;
 

@@ -8,7 +8,8 @@ namespace GameObjects
 {
     class Chessboard
     {
-        private GameObject gameObjectChessboard { get; set; }
+        private GameObject gameObjectChessboard;
+        public GameObject GameObjectChessboard { get; set; }
         private float SquareSize { get; set; }
         private UnityEngine.Object prefab;
 
