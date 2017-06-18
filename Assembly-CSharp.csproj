@@ -47,7 +47,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\GestureManager.cs" />
-     <Compile Include="Assets\WorldCursor.cs" />
+     <Compile Include="Assets\TextToSpeechManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>M:/Programs/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

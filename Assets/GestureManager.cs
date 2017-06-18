@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HoloToolkit.Unity;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VR.WSA;
@@ -8,11 +9,11 @@ using UnityEngine.Windows.Speech;
 public class GestureManager : MonoBehaviour
 {
     public static GameObject gameObjectChessboard;
+    public static GameObject gameObjectChessboardLetters;
+    public static GameObject gameObjectChessboardNumbers;
     public static bool gameObjectChessboardPlaced = false;
 
-    public static GameObject gameObjectChessPiece;
     public static GameObject gameObjectVoiceChessPiece;
-    public static bool gameObjectChessPieceSelected = false;
 
     private object[][] gameObjects = new object[8][];
     private List<string> letters = new List<string>() { "a", "b", "c", "d", "e", "f", "g", "h" };
@@ -30,9 +31,8 @@ public class GestureManager : MonoBehaviour
     private int physicsLayer = 31;
     private SpatialMappingCollider spatialMappingCollider;
 
-    private GameObject textPrefab;
+    private GameObject iconPrefab;
     public Vector3 headOffset = Vector3.zero;
-    private TextMesh textMesh;
 
     private UnityEngine.Object itemPrefabBlackBishop;
     private UnityEngine.Object itemPrefabBlackKing;
@@ -54,8 +54,7 @@ public class GestureManager : MonoBehaviour
 
     void Start()
     {
-        InitText();
-        InitGesture();
+        Init();
         InitSpeechRecognition();
         InitGameObjects();
     }
@@ -65,12 +64,10 @@ public class GestureManager : MonoBehaviour
         var headPosition = Camera.main.transform.position;
         var gazeDirection = Camera.main.transform.forward;
 
-        if (textPrefab != null)
+        if (iconPrefab != null)
         {
-            // move the textprefab
-            textPrefab.transform.position = headPosition + (gazeDirection * 180) + new Vector3(0,5,0);
-            textPrefab.transform.LookAt(Camera.main.transform);
-            textPrefab.transform.Rotate(0, 180, 0);
+            iconPrefab.transform.position = headPosition + (gazeDirection * 5);
+            iconPrefab.transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
         }
 
         if (!gameObjectChessboardPlaced && gameObjectChessboard != null)
@@ -80,39 +77,29 @@ public class GestureManager : MonoBehaviour
             if (Physics.Raycast(headPosition, gazeDirection, out hitInfo, 30.0f, PhysicsRaycastMask))
             {
                 gameObjectChessboard.transform.position = hitInfo.point;
-                //Quaternion toQuat = Camera.main.transform.localRotation;
-                //toQuat.x = 0;
-                //toQuat.z = 0;
-                //gameObjectChessboard.transform.rotation = toQuat;
             }
-        }
-        else if (gameObjectChessPiece != null)
-        {
-            ExecuteManualMove(true);
         }
     }
 
     #region Init
 
-    private void InitText()
+    private void Init()
     {
-        // set the text object
-        UnityEngine.Object textResource = Resources.Load("Text");
-        textPrefab = (GameObject)Instantiate(textResource, transform.position + (transform.forward * 2) + new Vector3(0, 5, 0), new Quaternion(0, 0, 0, 0));
-        textMesh = textPrefab.GetComponent<TextMesh>();
-        textMesh.text = "Say \"load\" load the chessboard.";
+        // load the icon
+        UnityEngine.Object iconResource = Resources.Load("icon");
+        iconPrefab = (GameObject)Instantiate(iconResource, transform.position + (transform.forward * 2), transform.rotation);
+        iconPrefab.AddComponent<Rigidbody>();
+
+        // welcome text
+        Speak("Welcome to holochess! To start playing say load chessboard to create a new chessboard.");
     }
 
-    private void InitGesture()
+    private void Speak(string text)
     {
-        // add the gesturerecognizer
-        GestureRecognizer recognizer = new GestureRecognizer();
-        recognizer.SetRecognizableGestures(GestureSettings.Tap | GestureSettings.DoubleTap);
-        recognizer.TappedEvent += (source, tapCount, ray) =>
-        {
-            GestureManager_TapEvent();
-        };
-        recognizer.StartCapturingGestures();
+        var soundManager = GameObject.Find("Audio Manager");
+        TextToSpeechManager textToSpeech = (TextToSpeechManager)soundManager.GetComponent<TextToSpeechManager>();
+        textToSpeech.Voice = TextToSpeechVoice.Zira;
+        textToSpeech.SpeakText(text);
     }
 
     private void InitSpeechRecognition()
@@ -125,12 +112,16 @@ public class GestureManager : MonoBehaviour
                     {
                         string from = letters[a - 1] + b.ToString();
                         string to = letters[c - 1] + d.ToString();
-                        keywords.Add(from + " to " + to);
+                        if (letters[c - 1] != "g" && letters[c - 1] != "b")
+                        {
+                            keywords.Add(from + " to " + to);
+                        }
                     }
 
         // add the load commands
-        keywords.Add("load");
-        keywords.Add("place");
+        keywords.Add("load chessboard");
+        keywords.Add("place chessboard");
+        keywords.Add("reset chessboard");
 
         keywordRecognizer = new KeywordRecognizer(keywords.ToArray());
         keywordRecognizer.OnPhraseRecognized += KeywordRecognizer_OnPhraseRecognized;
@@ -164,17 +155,60 @@ public class GestureManager : MonoBehaviour
 
     #endregion
 
+    #region Reset
+
+    private void Reset()
+    {
+        if (gameObjectChessboard != null)
+        {
+            gameObjectChessboard.SetActive(false);
+
+            Destroy(gameObjectChessboard);
+            Destroy(spatialMappingCollider);
+            Destroy(gameObjectChessboardLetters);
+            Destroy(gameObjectChessboardNumbers);
+
+            gameObjectChessboardLetters = null;
+            gameObjectChessboardNumbers = null;
+            gameObjectChessboard = null;
+            spatialMappingCollider = null;
+
+            gameObjectChessboardPlaced = false;
+
+            foreach (object[] items in gameObjects)
+            {
+                foreach (object item in items)
+                {
+                    Destroy((GameObject)item);
+                }
+            }
+
+            // init the objects
+            for (int i = 0; i < 8; i++)
+            {
+                gameObjects[i] = new object[8];
+            }
+        }
+    }
+
+    #endregion
+
     #region Events
 
     private void KeywordRecognizer_OnPhraseRecognized(PhraseRecognizedEventArgs args)
     {
-        if (args.text == "load")
+        if (args.text == "load chessboard")
         {
             LoadChessboard();
         }
-        else if (args.text == "place")
+        else if (args.text == "place chessboard")
         {
             PlaceChessboard();
+        }
+        else if (args.text == "reset chessboard")
+        {
+            Reset();
+            Init();
         }
         else if (args.text.Contains("to"))
         {
@@ -182,54 +216,19 @@ public class GestureManager : MonoBehaviour
         }
     }
 
-    public void GestureManager_TapEvent()
-    {
-        if (!gameObjectChessPieceSelected)
-        {
-            LoadChessPiece();
-        }
-        else
-        {
-            PlaceChessPiece();
-        }
-    }
-
     #endregion
 
     #region Load / Place
 
-    public void LoadChessPiece()
-    {
-        // check if chesspiece is selected and start movement
-        var headPosition = Camera.main.transform.position;
-        var gazeDirection = Camera.main.transform.forward;
-
-        RaycastHit hitInfo;
-        if (Physics.Raycast(headPosition, gazeDirection, out hitInfo) && (hitInfo.collider.gameObject.name.ToLower().Contains("white") || hitInfo.collider.gameObject.name.ToLower().Contains("black")))
-        {
-            // temp
-            if (hitInfo.collider.gameObject.name.ToLower().Contains("pawn"))
-            {
-                UnityEngine.Debug.Log("Chesspiece selected!");
-                gameObjectChessPiece = hitInfo.collider.gameObject;
-                gameObjectChessPieceSelected = true;
-            }
-        }
-    }
-
-    public void PlaceChessPiece()
-    {
-        // stop chesspiece movement
-        ExecuteManualMove(false);
-        UnityEngine.Debug.Log("Chesspiece deselected!");
-    }
-
     private void LoadChessboard()
     {
-        textMesh.text = "Say \"place\" to place the chessboard.";
-        UnityEngine.Debug.Log("Chessboard selected!");
+        // welcome text
+        Speak("Now find a clear space in the room and say place chessboard to position the chessboard in the room.");
+        iconPrefab.SetActive(false);
+
+        // load the chessboard
         UnityEngine.Object itemPrefab = Resources.Load("Cube");
-        gameObjectChessboard = (GameObject)Instantiate(itemPrefab, transform.position + (transform.forward * 5), new Quaternion(0, 0, 0, 0));
+        gameObjectChessboard = (GameObject)Instantiate(itemPrefab, transform.position + (transform.forward * 7), new Quaternion(0, 0, 0, 0));
 
         // start the spatial mapping
         spatialMappingCollider = gameObjectChessboard.GetComponent<SpatialMappingCollider>();
@@ -237,20 +236,27 @@ public class GestureManager : MonoBehaviour
         spatialMappingCollider.freezeUpdates = false;
         spatialMappingCollider.layer = physicsLayer;
         PhysicsRaycastMask = 1 << physicsLayer;
-        gameObjectChessboard.SetActive(true);
     }
 
     private void PlaceChessboard()
     {
+        // welcome text
+        Speak("Great! To move a chesspiece, say the current coordinates and the new coordinates of the chesspiece, for example a, 2, to b, 2. You can reset the game by saying reset chessboard. The black chesspieces are yours, your opponent has the first move, good luck!");
+
         // get chessboard data and stop movement
         Vector3 bounds = gameObjectChessboard.GetComponent<Renderer>().bounds.size;
         squareSize = bounds.x / 8;
         startBlack = gameObjectChessboard.transform.position;
         whiteStart = gameObjectChessboard.transform.position;
-        gameObjectChessboard = null;
+
+        UnityEngine.Object itemPrefabLetters = Resources.Load("LettersResource");
+        gameObjectChessboardLetters = (GameObject)Instantiate(itemPrefabLetters, gameObjectChessboard.transform.position - new Vector3(0.5f, 0, 0), new Quaternion(0, 0, 0, 0));
+
+        UnityEngine.Object itemPrefabNumbers = Resources.Load("NumbersResource");
+        gameObjectChessboardNumbers = (GameObject)Instantiate(itemPrefabNumbers, gameObjectChessboard.transform.position - new Vector3(0, 0, 0.5f), new Quaternion(0, 0, 0, 0));
+
         gameObjectChessboardPlaced = true;
         UnityEngine.Debug.Log("Chessboard deselected!");
-        textMesh.text = "";
 
         // black
         List<UnityEngine.Object> chessItemsBlack = new List<UnityEngine.Object>() { itemPrefabBlackRook, itemPrefabBlackKnight, itemPrefabBlackBishop, itemPrefabBlackKing, itemPrefabBlackQueen, itemPrefabBlackBishop, itemPrefabBlackKnight, itemPrefabBlackRook };
@@ -258,7 +264,7 @@ public class GestureManager : MonoBehaviour
         float itemPrefabBlackX = 0;
         float x = (bounds.x / 2) - (float)(0.5 * squareSize);
         float blackZ = (bounds.z / 2) - (float)(0.5 * squareSize);
-        startBlack = startBlack - new Vector3(x, 0, blackZ) + new Vector3(0, bounds.y, 0);
+        startBlack = startBlack - new Vector3(x, 0, blackZ) + new Vector3(0, bounds.y / 2, 0);
 
         // place black pieces
         int gameObjectLocation = 0;
@@ -282,7 +288,7 @@ public class GestureManager : MonoBehaviour
         Quaternion rotationWhite = new Quaternion(0, 180, 0, 0);
         float itemPrefabWhiteX = 0;
         float whiteZ = (bounds.z / 2) - (float)(1.5 * squareSize);
-        whiteStart = whiteStart + new Vector3(x, 0, whiteZ) + new Vector3(0, bounds.y, 0);
+        whiteStart = whiteStart + new Vector3(x, 0, whiteZ) + new Vector3(0, bounds.y / 2, 0);
 
         // place white pieces
         gameObjectLocation = 7;
@@ -300,6 +306,9 @@ public class GestureManager : MonoBehaviour
             gameObjects[gameObjectLocation--][7] = (GameObject)Instantiate(itemPrefabBlack, whiteStart + new Vector3(itemPrefabWhiteX, 0, squareSize), rotationWhite);
             itemPrefabWhiteX -= squareSize;
         }
+
+        // first opponent move
+        ExecuteOpponentMove();
     }
     #endregion
 
@@ -401,7 +410,7 @@ public class GestureManager : MonoBehaviour
         // get the from and to coordinates
         string[] coordinates = voiceCommand.Split(new string[] { " to " }, StringSplitOptions.RemoveEmptyEntries);
         int verticalFrom = letters.IndexOf(coordinates[0][0].ToString());
-        int horizontalFrom = int.Parse(coordinates[0][1].ToString()) - 1;
+        int horizontalFrom = int.Parse(coordinates[0][1].ToString()) - 1; 
         int verticalTo = letters.IndexOf(coordinates[1][0].ToString());
         int horizontalTo = int.Parse(coordinates[1][1].ToString()) - 1;
 
@@ -419,65 +428,64 @@ public class GestureManager : MonoBehaviour
             if (closestMove != null && closestMove[0] == horizontalTo && closestMove[1] == verticalTo)
             {
                 ExecuteMove(horizontalFrom, verticalFrom, horizontalTo, verticalTo);
-            }
-        }
-    }
-
-    private void ExecuteManualMove(bool temporary)
-    {
-        GameObject gameObjectCurrent = gameObjectVoiceChessPiece != null ? gameObjectVoiceChessPiece : gameObjectChessPiece;
-
-        // get the current position of the chesspiece
-        Vector3 chessPieceCurrentVector = new Vector3(gameObjectCurrent.transform.position.x, gameObjectCurrent.transform.position.y, gameObjectCurrent.transform.position.z);
-        int verticalFrom = (int)Math.Round((chessPieceCurrentVector.x - startBlack.x) / squareSize, 0);
-        int horizontalFrom = (int)Math.Round((chessPieceCurrentVector.z - startBlack.z) / squareSize, 0);
-
-        // get the new position of the chesspiece
-        Vector3 chessPieceNewVector = new Vector3(gameObjectCurrent.transform.position.x + (transform.forward * 2).x, gameObjectCurrent.transform.position.y + (transform.forward * 2).y, gameObjectCurrent.transform.position.z + (transform.forward * 2).z);
-        int verticalTo = (int)Math.Round((chessPieceNewVector.x - startBlack.x) / squareSize, 0);
-        int horizontalTo = (int)Math.Round((chessPieceNewVector.z - startBlack.z) / squareSize, 0);
-
-        // check limits of chesspiece
-        horizontalTo = Math.Max(horizontalTo, 0);
-        horizontalTo = Math.Min(horizontalTo, 7);
-        verticalTo = Math.Max(verticalTo, 0);
-        verticalTo = Math.Min(verticalTo, 7);
-        horizontalFrom = Math.Max(horizontalFrom, 0);
-        horizontalFrom = Math.Min(horizontalFrom, 7);
-        verticalFrom = Math.Max(verticalFrom, 0);
-        verticalFrom = Math.Min(verticalFrom, 7);
-
-        // get the closest available option
-        ChessPiece chessPiece = MapChessPiece(gameObjectCurrent.name);
-        ChessPieceColor chessPieceColor = MapChessPieceColor(gameObjectCurrent.name);
-        int[] closestMove = GetClosestMove(chessPiece, chessPieceColor, horizontalFrom, verticalFrom, horizontalTo, verticalTo);
-        if (closestMove != null)
-        {
-            // check if temporarymove of permanent
-            if (temporary)
-            {
-                ExecuteTempMove(horizontalFrom, verticalFrom, horizontalTo, verticalTo);
+                ExecuteOpponentMove();
             }
             else
             {
-                ExecuteMove(horizontalFrom, verticalFrom, horizontalTo, verticalTo);
+                Speak("The move " + voiceCommand + " is invalid!");
             }
         }
     }
 
-    private void ExecuteTempMove(int horizontalFrom, int verticalFrom, int horizontalTo, int verticalTo)
+    private void ExecuteOpponentMove()
     {
-        // get the closest square
-        float horizontalCoordinates = (horizontalTo) * squareSize;
-        float verticalCoordinates = (verticalTo) * squareSize;
+        // get a random move
+        int attempts = 0;
+        while (attempts < 1000)
+        {
+            System.Random r = new System.Random();
+            int a = r.Next(0, 8);
+            int b = r.Next(0, 8);
+            object existingObject = gameObjects[a][b];
+            if (existingObject != null && ((GameObject)existingObject).name.ToLower().Contains("white pawn"))
+            {
+                gameObjectVoiceChessPiece = (GameObject)existingObject;
+                object existingOpponentObject = gameObjects[a][b - 1];
+                if (existingOpponentObject == null || !((GameObject)existingOpponentObject).name.ToLower().Contains("black pawn"))
+                {
+                    ExecuteMove(a, b, a, b - 1);
+                    return;
+                }
+            }
+            attempts++;
+        }
 
-        // move the piece
-        gameObjectChessPiece.transform.position = startBlack + new Vector3(horizontalCoordinates, 0, verticalCoordinates);
+        // get the next move
+        for (int i = 0; i < 8; i++)
+        {
+            for (int y = 0; y < 8; y++)
+            {
+                object existingObject = gameObjects[i][y];
+                if (existingObject != null && ((GameObject)existingObject).name.ToLower().Contains("white pawn"))
+                {
+                    gameObjectVoiceChessPiece = (GameObject)existingObject;
+                    object existingOpponentObject = gameObjects[i][y - 1];
+                    if (existingOpponentObject == null || !((GameObject)existingOpponentObject).name.ToLower().Contains("black pawn"))
+                    {
+                        ExecuteMove(i, y, i, y - 1);
+                        return; 
+                    }
+                }
+            }
+        }
+
+        // end of demo
+        Speak("You have reached the end of the demo!");
     }
 
     private void ExecuteMove(int horizontalFrom, int verticalFrom, int horizontalTo, int verticalTo)
     {
-        ChessPieceColor chessPieceColor = MapChessPieceColor(gameObjectChessPiece.name);
+        ChessPieceColor chessPieceColor = MapChessPieceColor(gameObjectVoiceChessPiece.name);
         ChessPieceColor chessPieceOpponentColor = chessPieceColor == ChessPieceColor.black ? ChessPieceColor.white : ChessPieceColor.black;
 
         // get the closest square
@@ -493,11 +501,9 @@ public class GestureManager : MonoBehaviour
 
         // move the piece
         gameObjects[horizontalFrom][verticalFrom] = null;
-        gameObjects[horizontalTo][verticalTo] = gameObjectChessPiece;
-        gameObjectChessPiece.transform.position = startBlack + new Vector3(horizontalCoordinates, 0, verticalCoordinates);
-        gameObjectChessPiece = null;
+        gameObjects[horizontalTo][verticalTo] = gameObjectVoiceChessPiece;
+        gameObjectVoiceChessPiece.transform.position = startBlack + new Vector3(horizontalCoordinates, 0, verticalCoordinates);
         gameObjectVoiceChessPiece = null;
-        gameObjectChessPieceSelected = false;
     }
     #endregion
 }

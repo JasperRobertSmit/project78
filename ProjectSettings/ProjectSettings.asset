@@ -11,7 +11,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: hololens_project
+  productName: Holochess
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21176471, a: 1}
@@ -209,7 +209,13 @@ PlayerSettings:
     banner: {fileID: 0}
   androidGamepadSupportLevel: 0
   resolutionDialogBanner: {fileID: 0}
-  m_BuildTargetIcons: []
+  m_BuildTargetIcons:
+  - m_BuildTarget: 
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 37cd91bb503760c4dbb8e91702b7eb9d, type: 3}
+      m_Width: 128
+      m_Height: 128
   m_BuildTargetBatching: []
   m_BuildTargetGraphicsAPIs: []
   m_BuildTargetVRSettings:
@@ -410,13 +416,15 @@ PlayerSettings:
   metroCertificateIssuer: DefaultCompany
   metroCertificateNotAfter: 80a905677baad301
   metroApplicationDescription: hololens test
-  wsaImages: {}
-  metroTileShortName: 
+  wsaImages:
+    65936: 
+    2228324: Assets/Resources/icon-310x310.png
+  metroTileShortName: Holochess
   metroCommandLineArgsFile: 
   metroTileShowName: 0
-  metroMediumTileShowName: 0
-  metroLargeTileShowName: 0
-  metroWideTileShowName: 0
+  metroMediumTileShowName: 1
+  metroLargeTileShowName: 1
+  metroWideTileShowName: 1
   metroDefaultTileSize: 1
   metroTileForegroundText: 2
   metroTileBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21568628, a: 0}
